@@ -23,7 +23,9 @@ const uint8_t matrixHeight = 8;
 #define ESCENAS 3
 #define FRAMES 1
 
+int counter=0;
 int BRIGHTNESS = 20;
+
 CRGB leds[matrixWidth * matrixHeight];
 
 int animator = 0;
@@ -50,12 +52,12 @@ void setup() {
 }
 
 CRGB matrix[ESCENAS][FRAMES][matrixHeight][matrixWidth] = {
-{
   {
+    {
     {negro, negro, negro,negro, negro, negro, negro,negro},
+    {negro, negro, verde,negro, negro, negro, negro,negro},
     {negro, negro, verde,negro, negro, verde, negro,negro},
-    {negro, negro, verde,negro, negro, verde, negro,negro},
-    {negro, negro, verde,negro, negro, verde, negro,negro},
+    {negro, negro, verde,negro, negro, negro, negro,negro},
     {verde, negro, negro,negro, negro, negro, negro,verde},
     {negro, verde, negro,negro, negro, negro, verde,negro},
     {negro, negro, verde,verde, verde, verde, negro,negro},
@@ -65,9 +67,9 @@ CRGB matrix[ESCENAS][FRAMES][matrixHeight][matrixWidth] = {
   {
     {
     {negro, negro, negro,negro, negro, negro, negro,negro},
-    {negro, negro, amarillo,negro, negro, amarillo, negro,negro},
-    {negro, negro, amarillo,negro, negro, amarillo, negro,negro},
-    {negro, negro, amarillo,negro, negro, amarillo, negro,negro},
+    {negro, negro, negro,negro, negro, negro, negro,negro},
+    {negro, amarillo, amarillo,negro, negro, amarillo, amarillo,negro},
+    {negro, negro, negro,negro, negro, negro, negro,negro},
     {negro, negro, negro,negro, negro, negro, negro,negro},
     {negro, negro, negro,negro, negro, negro, negro,negro},
     {negro, amarillo, amarillo,amarillo, amarillo, amarillo, amarillo,negro},
@@ -77,32 +79,44 @@ CRGB matrix[ESCENAS][FRAMES][matrixHeight][matrixWidth] = {
   {
     {
     {negro, negro, negro,negro, negro, negro, negro,negro},
+    {negro, rojo, negro,rojo, rojo, negro, rojo,negro},
     {negro, negro, rojo,negro, negro, rojo, negro,negro},
-    {negro, negro, rojo,negro, negro, rojo, negro,negro},
-    {negro, negro, rojo,negro, negro, rojo, negro,negro},
+    {negro, rojo, negro,rojo, rojo, negro, rojo,negro},
     {negro, negro, negro,negro, negro, negro, negro,negro},
     {negro, negro, rojo,rojo, rojo, rojo, negro,negro},
     {negro, rojo, negro,negro, negro, negro, rojo,negro},
     {negro, negro, negro,negro, negro, negro, negro,negro},
-    },
   },
+ },
 };
 
 
 void cambioLed(int c){
+  int primo=103;
+  int primo2=29;
   if(micMaxValue<c){
-    micMaxValue=c;
+    micMaxValue=800;
     part=micMaxValue/ESCENAS;
+   
     }
+    counter=0;
+    for (int i = 0; i < matrixHeight; i++) {
+    for (int j = 0; j < matrixWidth; j++) {
+      counter=counter+1;
+      if(c<part*1){
+        matrix[0][0][j][i]=CRGB(0,128,(primo*counter+c)%255 );
+        }
+     else if (c>part*1&&c<part*2) {
+        matrix[0][0][j][i]=CRGB((primo2*counter+c)%220,0,(primo2*counter+c)%255);
+      }else if (c>part*2) {
+       matrix[0][0][j][i]=CRGB((primo*counter+c)%255,(primo2*counter+c)%10,0 );
+        }
+      }
+    }
+    
     for (int i = 0; i < matrixHeight; i++) {
       for (int j = 0; j < matrixWidth; j++) {
-      if (c<part*1) { 
-        leds[i * matrixWidth + j] = matrix[0][animator % FRAMES][i][j];
-      } else if (c>part*1&&c<part*2) {
-        leds[i * matrixWidth + j] = matrix[1][animator % FRAMES][i][j];
-      } else if (c>part*2) {
-        leds[i * matrixWidth + j] = matrix[2][animator % FRAMES][i][j];
-      }
+        leds[i * matrixWidth + j] = matrix[0][0][i][j];
       FastLED.show();
      }
     }
@@ -129,12 +143,16 @@ void loop() {
 
   peakToPeak = signalMax - signalMin;
   int changeAnimation = map(peakToPeak, inputMin, inputMax, 0, 100);
-
+  FastLED.setBrightness(80);
   cambioLed(changeAnimation);
-  delay(500);
+  delay(100-((peakToPeak/600)*100));
   animator = (animator + 1) % 100;
   Serial.print("map value: ");
   Serial.println(changeAnimation);
   Serial.print("peak value: ");
   Serial.println(peakToPeak);
 }
+/*metas
+ruido
+caritas con animacion 
+*/
